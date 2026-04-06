@@ -1,0 +1,82 @@
+import random
+import copy
+
+board = [[" " for _ in range(3)] for _ in range(3)]
+
+def win(player, board):
+    lines = [
+        board[0], board[1], board[2],
+        [board[0][0], board[1][0], board[2][0]],
+        [board[0][1], board[1][1], board[2][1]],
+        [board[0][2], board[1][2], board[2][2]],
+        [board[0][0], board[1][1], board[2][2]],
+        [board[0][2], board[1][1], board[2][0]],
+    ]
+    return [player]*3 in lines
+
+def fork_move(board, player):
+    temp = copy.deepcopy(board)
+    for i in range(3):
+        for j in range(3):
+            if temp[i][j] == " ":
+                temp[i][j] = player
+                wins = 0
+                for r in range(3):
+                    for c in range(3):
+                        if temp[r][c] == " ":
+                            temp[r][c] = player
+                            if win(player, temp):
+                                wins += 1
+                            temp[r][c] = " "
+                temp[i][j] = " "
+                if wins >= 2:
+                    return (i, j)
+    return None
+
+def ai_move():
+    temp = copy.deepcopy(board)
+
+    # Win
+    for i in range(3):
+        for j in range(3):
+            if temp[i][j] == " ":
+                temp[i][j] = "O"
+                if win("O", temp):
+                    board[i][j] = "O"
+                    return
+                temp[i][j] = " "
+
+    # Block
+    for i in range(3):
+        for j in range(3):
+            if temp[i][j] == " ":
+                temp[i][j] = "X"
+                if win("X", temp):
+                    board[i][j] = "O"
+                    return
+                temp[i][j] = " "
+
+    # Fork
+    move = fork_move(board, "O")
+    if move:
+        board[move[0]][move[1]] = "O"
+        return
+
+    # Block fork
+    move = fork_move(board, "X")
+    if move:
+        board[move[0]][move[1]] = "O"
+        return
+
+    # Center
+    if board[1][1] == " ":
+        board[1][1] = "O"
+        return
+
+    # Random
+    while True:
+        r = random.randint(0,2)
+        c = random.randint(0,2)
+        if board[r][c] == " ":
+            board[r][c] = "O"
+            return
