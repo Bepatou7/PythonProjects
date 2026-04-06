@@ -1,0 +1,76 @@
+import random
+import time
+from IPython.display import clear_output
+
+def clear_screen():
+    clear_output()
+
+def create_board():
+    return [[" " for _ in range(3)] for _ in range(3)]
+
+board = create_board()
+
+def display_board(board):
+    for i in range(3):
+        print(" " + " | ".join(board[i]))
+        if i < 2:
+            print("---+---+---")
+
+def update_board():
+    while True:
+        xr = int(input("Which Row (1-3)? "))
+        xc = int(input("Which Column (1-3)? "))
+        if 1 <= xr <= 3 and 1 <= xc <= 3:
+            if board[xr-1][xc-1] == " ":
+                board[xr-1][xc-1] = "X"
+                break
+            else:
+                print("Space taken!")
+        else:
+            print("Invalid input!")
+
+def pick_space():
+    while True:
+        r = random.randint(0,2)
+        c = random.randint(0,2)
+        if board[r][c] == " ":
+            board[r][c] = "O"
+            time.sleep(1)
+            break
+
+def end_game():
+    return all(board[r][c] != " " for r in range(3) for c in range(3))
+
+def win(player):
+    lines = [
+        board[0], board[1], board[2],
+        [board[0][0], board[1][0], board[2][0]],
+        [board[0][1], board[1][1], board[2][1]],
+        [board[0][2], board[1][2], board[2][2]],
+        [board[0][0], board[1][1], board[2][2]],
+        [board[0][2], board[1][1], board[2][0]],
+    ]
+    return [player]*3 in lines
+
+while True:
+    clear_screen()
+    display_board(board)
+    update_board()
+
+    if win("X"):
+        print("You Win!")
+        break
+    if end_game():
+        print("Tie!")
+        break
+
+    pick_space()
+
+    if win("O"):
+        print("You Lose!")
+        break
+    if end_game():
+        print("Tie!")
+        break
+
+display_board(board)
