@@ -1,82 +1,170 @@
 import random
+import time
 import copy
+from IPython.display import clear_output
 
-board = [[" " for _ in range(3)] for _ in range(3)]
-
-def win(player, board):
-    lines = [
-        board[0], board[1], board[2],
-        [board[0][0], board[1][0], board[2][0]],
-        [board[0][1], board[1][1], board[2][1]],
-        [board[0][2], board[1][2], board[2][2]],
-        [board[0][0], board[1][1], board[2][2]],
-        [board[0][2], board[1][1], board[2][0]],
-    ]
-    return [player]*3 in lines
-
-def fork_move(board, player):
-    temp = copy.deepcopy(board)
-    for i in range(3):
-        for j in range(3):
-            if temp[i][j] == " ":
-                temp[i][j] = player
-                wins = 0
-                for r in range(3):
-                    for c in range(3):
-                        if temp[r][c] == " ":
-                            temp[r][c] = player
-                            if win(player, temp):
-                                wins += 1
-                            temp[r][c] = " "
-                temp[i][j] = " "
-                if wins >= 2:
-                    return (i, j)
-    return None
-
-def ai_move():
-    temp = copy.deepcopy(board)
-
-    # Win
-    for i in range(3):
-        for j in range(3):
-            if temp[i][j] == " ":
-                temp[i][j] = "O"
-                if win("O", temp):
-                    board[i][j] = "O"
-                    return
-                temp[i][j] = " "
-
-    # Block
-    for i in range(3):
-        for j in range(3):
-            if temp[i][j] == " ":
-                temp[i][j] = "X"
-                if win("X", temp):
-                    board[i][j] = "O"
-                    return
-                temp[i][j] = " "
-
-    # Fork
-    move = fork_move(board, "O")
-    if move:
-        board[move[0]][move[1]] = "O"
+def clear_screen():
+    clear_output()
+board = []
+for r in range(3):
+    row = []
+    for c in range(3):
+        row.append(" ")
+    board.append(row)
+def display_board(board):
+    r = len(board)
+    c = len(board[0])
+    for r1 in range(r):
+        for c1 in range(c-1):
+            print(" " + board[r1][c1] + " |", end="")
+        print(" " + board[r1][c-1])
+        if r1 < r-1:
+            print("---+---+---")
+def update_board():
+    xr = input("Which Row? ")
+    xc = input("Which Column? ")
+    if int(xr) > 3 or int(xc) > 3:
+        print("Input must be 1–3")
+        update_board()
         return
+    if board[int(xr)-1][int(xc)-1] == " ":
+        board[int(xr)-1][int(xc)-1] = "X"
+    else:
+        print("Space Taken")
+        update_board()
 
-    # Block fork
-    move = fork_move(board, "X")
-    if move:
-        board[move[0]][move[1]] = "O"
-        return
-
-    # Center
-    if board[1][1] == " ":
-        board[1][1] = "O"
-        return
-
-    # Random
+def pick_space():
     while True:
         r = random.randint(0,2)
         c = random.randint(0,2)
         if board[r][c] == " ":
             board[r][c] = "O"
-            return
+            time.sleep(1)
+            break
+
+def end_game():
+    space = 0
+    for r in range(3):
+        for c in range(3):
+            if board[r][c] == " ":
+                space += 1
+    if space == 0:
+        return True
+def win(player, board):
+    if board[0][0]==player and board[0][1]==player and board[0][2]==player:
+        return True
+    if board[1][0]==player and board[1][1]==player and board[1][2]==player:
+        return True
+    if board[2][0]==player and board[2][1]==player and board[2][2]==player:
+        return True
+    if board[0][0]==player and board[1][0]==player and board[2][0]==player:
+        return True
+    if board[0][1]==player and board[1][1]==player and board[2][1]==player:
+        return True
+    if board[0][2]==player and board[1][2]==player and board[2][2]==player:
+        return True
+    if board[0][0]==player and board[1][1]==player and board[2][2]==player:
+        return True
+    if board[0][2]==player and board[1][1]==player and board[2][0]==player:
+        return True
+
+    return False
+
+def forkMove():
+    board2 = copy.deepcopy(board)
+    for i in range(3):
+        for j in range(3):
+
+            if board2[i][j] == " ":
+                board2[i][j] = "O"
+                wins = 0
+                for r in range(3):
+                    for c in range(3):
+                        if board2[r][c] == " ":
+                            board2[r][c] = "O"
+
+                            if win("O", board2):
+                                wins += 1
+
+                            board2[r][c] = " "
+
+                board2[i][j] = " "
+
+                if wins >= 2:
+                    board[i][j] = "O"
+                    return True
+    return False
+
+def forkMove2():
+    board2 = copy.deepcopy(board)
+    for i in range(3):
+        for j in range(3):
+
+            if board2[i][j] == " ":
+                board2[i][j] = "X"
+                wins = 0
+                for r in range(3):
+                    for c in range(3):
+                        if board2[r][c] == " ":
+                            board2[r][c] = "X"
+                            if win("X", board2):
+                                wins += 1
+
+                            board2[r][c] = " "
+
+                board2[i][j] = " "
+
+                if wins >= 2:
+                    board[i][j] = "O"
+                    return True
+    return False
+
+def winMove():
+    board2 = copy.deepcopy(board)
+    for i in range(3):
+        for j in range(3):
+            if board2[i][j] == " ":
+                board2[i][j] = "O"
+                if win("O", board2):
+                    board[i][j] = "O"
+                    return
+                board2[i][j] = " "
+    for i in range(3):
+        for j in range(3):
+            if board2[i][j] == " ":
+                board2[i][j] = "X"
+                if win("X", board2):
+                    board[i][j] = "O"
+                    return
+                board2[i][j] = " "
+    if forkMove():
+        return
+    if forkMove2():
+        return
+    if board[1][1] == " ":
+        board[1][1] = "O"
+        return
+
+    pick_space()
+while True:
+    clear_screen()
+    display_board(board)
+    update_board()
+    if win("X", board):
+        clear_screen()
+        print("You Win")
+        break
+    if end_game():
+        clear_screen()
+        print("Tie")
+        break
+    winMove()
+    if win("O", board):
+        clear_screen()
+        print("You Lose")
+        break
+    if end_game():
+        clear_screen()
+        print("Tie")
+        break
+display_board(board)
