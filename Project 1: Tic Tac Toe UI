@@ -1,76 +1,98 @@
 import random
 import time
 from IPython.display import clear_output
-
 def clear_screen():
-    clear_output()
-
-def create_board():
-    return [[" " for _ in range(3)] for _ in range(3)]
-
-board = create_board()
+  clear_output()
+board=[]
+for r in range(3):
+  row=[]
+  for c in range(3):
+    row.append(" ")
+  board.append(row)
+print(board)
 
 def display_board(board):
-    for i in range(3):
-        print(" " + " | ".join(board[i]))
-        if i < 2:
-            print("---+---+---")
+  r = len(board)
+  c = len(board[0])
+  for r1 in range(r):
+      for c1 in range(c-1):
+        print(" " + board[r1][c1] + ' |',end="")
+      print(" "+board[r1][c-1])
+      if r1 < r-1:
+        for ij in range(r-1):
+          print('---+',end="")
+        print("---")
 
 def update_board():
-    while True:
-        xr = int(input("Which Row (1-3)? "))
-        xc = int(input("Which Column (1-3)? "))
-        if 1 <= xr <= 3 and 1 <= xc <= 3:
-            if board[xr-1][xc-1] == " ":
-                board[xr-1][xc-1] = "X"
-                break
-            else:
-                print("Space taken!")
-        else:
-            print("Invalid input!")
-
-def pick_space():
-    while True:
-        r = random.randint(0,2)
-        c = random.randint(0,2)
-        if board[r][c] == " ":
-            board[r][c] = "O"
-            time.sleep(1)
-            break
-
-def end_game():
-    return all(board[r][c] != " " for r in range(3) for c in range(3))
-
-def win(player):
-    lines = [
-        board[0], board[1], board[2],
-        [board[0][0], board[1][0], board[2][0]],
-        [board[0][1], board[1][1], board[2][1]],
-        [board[0][2], board[1][2], board[2][2]],
-        [board[0][0], board[1][1], board[2][2]],
-        [board[0][2], board[1][1], board[2][0]],
-    ]
-    return [player]*3 in lines
-
-while True:
-    clear_screen()
-    display_board(board)
+  xr=input('Which Row? ')
+  if int(xr)>3:
+    print("Input must be smaller than 3")
+  xc=input("Which Column? ")
+  if int(xc)>3:
+    print("Input must be smaller than 3")
+  if board[int(xr)-1][int(xc)-11] == " ":
+    board[int(xr)-1][int(xc)-1]="X"
+  else:
+    print("Space Taken")
     update_board()
 
-    if win("X"):
-        print("You Win!")
-        break
-    if end_game():
-        print("Tie!")
-        break
+def pick_space():
+  while True:
+    r = random.randint(0,2)
+    c = random.randint(0,2)
+    if board[r][c] == " ":
+      board[r][c]="O"
+      time.sleep(1)
+      break
+def end_game():
+  space=0
+  r = len(board)
+  c = len(board[0])
+  for r1 in range(r):
+    for c1 in range(c):
+      if board[r1][c1]==" ":
+        space+=1
+  if space==0:
+    return True
 
-    pick_space()
+def win(player):
+  if board[0][0] == player and board[0][1] == player and board[0][2] == player:
+    return True
+  if board[1][0] == player and board[1][1] == player and board[1][2] == player:
+    return True
+  if board[2][0] == player and board[2][1] == player and board[2][2] == player:
+    return True
+  if board[0][0] == player and board[1][0] == player and board[2][0] == player:
+    return True
+  if board[0][1] == player and board[1][1] == player and board[2][1] == player:
+    return True
+  if board[0][2] == player and board[1][2] == player and board[2][2] == player:
+    return True
+  if board[0][0] == player and board[1][1] == player and board[2][2] == player:
+    return True
+  if board[0][2] == player and board[1][1] == player and board[2][0] == player:
+    return True
+  return False
 
-    if win("O"):
-        print("You Lose!")
-        break
-    if end_game():
-        print("Tie!")
-        break
-
+while True:
+  clear_screen()
+  display_board(board)
+  update_board()
+  if win("X")== True:
+    clear_screen()
+    print("You Win")
+    break
+  if end_game() == True:
+    clear_screen()
+    print("Tie")
+    break
+  pick_space()
+  if win("O")==True:
+    clear_screen()
+    print("You Lose")
+    break
+  if end_game() == True:
+    clear_screen()
+    print("Tie")
+    break
 display_board(board)
